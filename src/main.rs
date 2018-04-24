@@ -1,9 +1,11 @@
+extern crate clap;
 extern crate config;
 extern crate oauth_client as oauth;
 extern crate serde_json;
 
 use oauth::Token;
 use serde_json::Value;
+use clap::{App, Arg, SubCommand};
 
 use std::collections::HashMap;
 use std::env;
@@ -48,5 +50,48 @@ fn run() {
 }
 
 fn main() {
-    run();
+    let app_m = App::new("twcli-rust")
+        .version("1.0")
+        .author("Kenichi Sakiyama.")
+        .about("This is very simple Twitter cli client with Rust.")
+        .subcommand(
+            SubCommand::with_name("timeline")
+                .about("Show home timeline.")
+                .arg(Arg::with_name("count").index(1)),
+        )
+        .subcommand(
+            SubCommand::with_name("tweet")
+                .about("Tweet your status.")
+                .arg(Arg::with_name("status").index(1).required(true)),
+        )
+        .usage("twcli timeline(tl) &{count} / twcli tweet(tw) ${status}")
+        .get_matches();
+
+    match app_m.subcommand_name() {
+        Some("timeline") => {
+            if let Some(sub_m) = app_m.subcommand_matches("timeline") {
+                match sub_m.value_of("count") {
+                    // set count
+                    Some(c) => println!("{}", c),
+                    None => run(),
+                }
+            }
+        }
+        Some("tweet") => {
+            println!("tweet");
+            if let Some(sub_m) = app_m.subcommand_matches("tweet") {
+                match sub_m.value_of("status") {
+                    Some(s) => {
+                        println!("{}", s);
+                    }
+                    None => {
+                        println!("Need status.");
+                    }
+                }
+            }
+        }
+        _ => {
+            println!("{}", app_m.usage());
+        }
+    }
 }
