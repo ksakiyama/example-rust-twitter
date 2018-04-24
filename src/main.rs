@@ -1,5 +1,3 @@
-#[macro_use]
-extern crate serde_derive;
 extern crate config;
 extern crate oauth_client as oauth;
 extern crate serde_json;
