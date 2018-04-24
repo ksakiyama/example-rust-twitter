@@ -49,6 +49,42 @@ fn run() {
     }
 }
 
+fn run_tweet(status: &str) {
+    let mut cfg_path = env::home_dir().unwrap();
+    cfg_path.push(".twclirc.yml");
+    cfg_path.as_path();
+
+    let mut settings = config::Config::default();
+    settings
+        .merge(config::File::from(cfg_path.as_path()))
+        .unwrap();
+    let cfg = settings.try_into::<HashMap<String, String>>().unwrap();
+
+    let statues_update: &'static str = "https://api.twitter.com/1.1/statuses/update.json";
+
+    let consumer_key = &cfg["consumer_key"];
+    let consumer_secret = &cfg["consumer_secret"];
+    let access_token = &cfg["access_token"];
+    let access_token_secret = &cfg["access_token_secret"];
+
+    let consumer = Token::new(consumer_key.as_str(), consumer_secret.as_str());
+    let access = Token::new(access_token.as_str(), access_token_secret.as_str());
+
+    let mut params = HashMap::new();
+    params.insert("status".into(), status.into());
+
+    match oauth::post(statues_update, &consumer, Some(&access), Some(&params)) {
+        Ok(_) => {
+            // let resp = String::from_utf8(bytes).unwrap();
+            // println!("{:?}", resp);
+            println!("Success.");
+        }
+        Err(err) => {
+            println!("{}", err.to_string());
+        }
+    }
+}
+
 fn main() {
     let app_m = App::new("twcli-rust")
         .version("1.0")
@@ -78,11 +114,11 @@ fn main() {
             }
         }
         Some("tweet") => {
-            println!("tweet");
             if let Some(sub_m) = app_m.subcommand_matches("tweet") {
                 match sub_m.value_of("status") {
                     Some(s) => {
-                        println!("{}", s);
+                        run_tweet(s);
+                        // println!("{}", s);
                     }
                     None => {
                         println!("Need status.");
