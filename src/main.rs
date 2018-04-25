@@ -22,7 +22,7 @@ struct Twicli {
 }
 
 impl Twicli {
-    pub fn new() -> Twicli {
+    fn new() -> Twicli {
         let mut cfg_path = env::home_dir().unwrap();
         cfg_path.push(".twclirc.yml");
 
@@ -40,7 +40,7 @@ impl Twicli {
         }
     }
 
-    pub fn timeline(self, count: &str) {
+    fn timeline(self, count: &str) {
         let consumer = Token::new(self.consumer_key.as_str(), self.consumer_secret.as_str());
         let access = Token::new(
             self.access_token.as_str(),
@@ -65,7 +65,7 @@ impl Twicli {
         }
     }
 
-    pub fn tweet(self, status: &str) {
+    fn tweet(self, status: &str) {
         let consumer = Token::new(self.consumer_key.as_str(), self.consumer_secret.as_str());
         let access = Token::new(
             self.access_token.as_str(),
