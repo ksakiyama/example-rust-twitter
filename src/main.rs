@@ -25,7 +25,6 @@ impl Twicli {
     pub fn new() -> Twicli {
         let mut cfg_path = env::home_dir().unwrap();
         cfg_path.push(".twclirc.yml");
-        cfg_path.as_path();
 
         let mut settings = config::Config::default();
         settings
@@ -114,7 +113,7 @@ fn main() {
                 .about("Tweet your status.")
                 .arg(Arg::with_name("status").index(1).required(true)),
         )
-        .usage("twcli timeline(tl) &{count} / twcli tweet(tw) ${status}")
+        .usage("twcli timeline(tl) &{count} / twcli tweet(tw) \"${status}\"")
         .get_matches();
 
     let twitter = Twicli::new();
