@@ -15,10 +15,8 @@ static HOME_TIMELINE: &str = "https://api.twitter.com/1.1/statuses/home_timeline
 
 #[derive(Debug)]
 struct Twicli {
-    consumer_key: String,
-    consumer_secret: String,
-    access_token: String,
-    access_token_secret: String,
+    consumer: oauth::Token<'static>,
+    access: oauth::Token<'static>,
 }
 
 impl Twicli {
@@ -30,52 +28,59 @@ impl Twicli {
         settings
             .merge(config::File::from(cfg_path.as_path()))
             .unwrap();
-        let cfg = settings.try_into::<HashMap<String, String>>().unwrap();
+        let mut cfg = settings.try_into::<HashMap<String, String>>().unwrap();
 
         Twicli {
-            consumer_key: cfg["consumer_key"].clone(),
-            consumer_secret: cfg["consumer_secret"].clone(),
-            access_token: cfg["access_token"].clone(),
-            access_token_secret: cfg["access_token_secret"].clone(),
+            consumer: Token::new(cfg["consumer_key"].clone(), cfg["consumer_secret"].clone()),
+            // access: Token::new(
+            //     cfg["access_token"].clone(),
+            //     cfg["access_token_secret"].clone(),
+            // ),
+            access: Token::new(
+                cfg.remove("access_token").unwrap(),
+                cfg["access_token_secret"].clone(),
+            ),
         }
     }
 
     fn timeline(self, count: &str) {
-        let consumer = Token::new(self.consumer_key.as_str(), self.consumer_secret.as_str());
-        let access = Token::new(
-            self.access_token.as_str(),
-            self.access_token_secret.as_str(),
-        );
-
         let mut params = HashMap::new();
         params.insert("count".into(), count.into());
 
-        let bytes = oauth::get(HOME_TIMELINE, &consumer, Some(&access), Some(&params)).unwrap();
+        let bytes = oauth::get(
+            HOME_TIMELINE,
+            &self.consumer,
+            Some(&self.access),
+            Some(&params),
+        ).unwrap();
         let last_tweets_json = String::from_utf8(bytes).unwrap();
         let tweets: Vec<Value> = serde_json::from_str(&last_tweets_json).unwrap();
 
         if tweets.is_empty() {
-            println!("No tweet in your timeline...");
+            println!("No tweet(´・ω・｀)");
         } else {
             for t in tweets {
                 println!("{}::{}", t["user"]["name"], t["text"]);
+                println!("");
                 println!("{}", t["created_at"]);
-                println!("---------------------------------------------------");
+                println!(
+                    "---------------------------------------------------\
+                     ---------------------------------------------------"
+                );
             }
         }
     }
 
     fn tweet(self, status: &str) {
-        let consumer = Token::new(self.consumer_key.as_str(), self.consumer_secret.as_str());
-        let access = Token::new(
-            self.access_token.as_str(),
-            self.access_token_secret.as_str(),
-        );
-
         let mut params = HashMap::new();
         params.insert("status".into(), status.into());
 
-        match oauth::post(STATUSES_UPDATE, &consumer, Some(&access), Some(&params)) {
+        match oauth::post(
+            STATUSES_UPDATE,
+            &self.consumer,
+            Some(&self.access),
+            Some(&params),
+        ) {
             Ok(_) => {
                 // let resp = String::from_utf8(bytes).unwrap();
                 // println!("{:?}", resp);
