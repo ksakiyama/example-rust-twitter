@@ -30,15 +30,16 @@ impl Twicli {
             .unwrap();
         let mut cfg = settings.try_into::<HashMap<String, String>>().unwrap();
 
+        // TODO: check keys existance
+
         Twicli {
-            consumer: Token::new(cfg["consumer_key"].clone(), cfg["consumer_secret"].clone()),
-            // access: Token::new(
-            //     cfg["access_token"].clone(),
-            //     cfg["access_token_secret"].clone(),
-            // ),
+            consumer: Token::new(
+                cfg.remove("consumer_key").unwrap(),
+                cfg.remove("consumer_secret").unwrap(),
+            ),
             access: Token::new(
                 cfg.remove("access_token").unwrap(),
-                cfg["access_token_secret"].clone(),
+                cfg.remove("access_token_secret").unwrap(),
             ),
         }
     }
@@ -75,6 +76,7 @@ impl Twicli {
         let mut params = HashMap::new();
         params.insert("status".into(), status.into());
 
+        // TODO: prefer to use try! ?
         match oauth::post(
             STATUSES_UPDATE,
             &self.consumer,
