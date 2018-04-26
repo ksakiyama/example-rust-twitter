@@ -11,10 +11,6 @@ use std::collections::HashMap;
 use std::env;
 use std::process;
 
-
-static STATUSES_UPDATE: &str = "https://api.twitter.com/1.1/statuses/update.json";
-static HOME_TIMELINE: &str = "https://api.twitter.com/1.1/statuses/home_timeline.json";
-
 #[derive(Debug)]
 struct Twicli {
     consumer: oauth::Token<'static>,
@@ -26,6 +22,12 @@ mod keys {
     pub const CONSUMER_SECRET: &'static str = "consumer_secret";
     pub const ACCESS_TOKEN: &'static str = "access_token";
     pub const ACCESS_TOKEN_SECRET: &'static str = "access_token_secret";
+}
+
+mod api {
+    pub const STATUSES_UPDATE: &'static str = "https://api.twitter.com/1.1/statuses/update.json";
+    pub const HOME_TIMELINE: &'static str =
+        "https://api.twitter.com/1.1/statuses/home_timeline.json";
 }
 
 impl Twicli {
@@ -64,7 +66,7 @@ impl Twicli {
         params.insert("count".into(), count.into());
 
         let bytes = oauth::get(
-            HOME_TIMELINE,
+            api::HOME_TIMELINE,
             &self.consumer,
             Some(&self.access),
             Some(&params),
@@ -101,7 +103,7 @@ impl Twicli {
         params.insert("status".into(), status.into());
 
         match oauth::post(
-            STATUSES_UPDATE,
+            api::STATUSES_UPDATE,
             &self.consumer,
             Some(&self.access),
             Some(&params),
