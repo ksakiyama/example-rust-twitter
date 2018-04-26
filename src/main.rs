@@ -61,9 +61,18 @@ impl Twicli {
             println!("No tweet(´・ω・｀)");
         } else {
             for t in tweets {
-                println!("{}::{}", t["user"]["name"], t["text"]);
+                println!("{}", t["user"]["name"].to_string().trim_matches('"'));
                 println!("");
-                println!("{}", t["created_at"]);
+                println!(
+                    "{}",
+                    t["text"]
+                        .to_string()
+                        .replace("\\n", "\n")
+                        .replace("\\t", "\t")
+                        .trim_matches('"')
+                );
+                println!("");
+                println!("{}", t["created_at"].to_string().trim_matches('"'));
                 println!(
                     "---------------------------------------------------\
                      ---------------------------------------------------"
