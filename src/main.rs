@@ -9,6 +9,8 @@ use clap::{App, Arg, SubCommand};
 
 use std::collections::HashMap;
 use std::env;
+use std::process;
+
 
 static STATUSES_UPDATE: &str = "https://api.twitter.com/1.1/statuses/update.json";
 static HOME_TIMELINE: &str = "https://api.twitter.com/1.1/statuses/home_timeline.json";
@@ -17,6 +19,13 @@ static HOME_TIMELINE: &str = "https://api.twitter.com/1.1/statuses/home_timeline
 struct Twicli {
     consumer: oauth::Token<'static>,
     access: oauth::Token<'static>,
+}
+
+mod keys {
+    pub const CONSUMER_KEY: &'static str = "consumer_key";
+    pub const CONSUMER_SECRET: &'static str = "consumer_secret";
+    pub const ACCESS_TOKEN: &'static str = "access_token";
+    pub const ACCESS_TOKEN_SECRET: &'static str = "access_token_secret";
 }
 
 impl Twicli {
@@ -30,7 +39,13 @@ impl Twicli {
             .unwrap();
         let mut cfg = settings.try_into::<HashMap<String, String>>().unwrap();
 
-        // TODO: check keys existance
+        if !cfg.contains_key(keys::CONSUMER_KEY) || !cfg.contains_key(keys::CONSUMER_SECRET)
+            || !cfg.contains_key(keys::ACCESS_TOKEN)
+            || !cfg.contains_key(keys::ACCESS_TOKEN_SECRET)
+        {
+            println!(".twclirc.yml is invalid!");
+            process::exit(1);
+        }
 
         Twicli {
             consumer: Token::new(
@@ -85,7 +100,6 @@ impl Twicli {
         let mut params = HashMap::new();
         params.insert("status".into(), status.into());
 
-        // TODO: prefer to use try! ?
         match oauth::post(
             STATUSES_UPDATE,
             &self.consumer,
