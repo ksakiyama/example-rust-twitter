@@ -33,7 +33,7 @@ mod api {
 impl Twicli {
     fn new() -> Twicli {
         let mut cfg_path = env::home_dir().unwrap();
-        cfg_path.push(".twclirc.yml");
+        cfg_path.push(".twclirc.yaml");
 
         let mut settings = config::Config::default();
         settings
