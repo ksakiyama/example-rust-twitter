@@ -31,7 +31,7 @@ mod api {
 }
 
 impl Twicli {
-    fn new() -> Twicli {
+    fn new() -> Self {
         let mut cfg_path = env::home_dir().unwrap();
         cfg_path.push(".twclirc.yaml");
 
@@ -49,7 +49,7 @@ impl Twicli {
             process::exit(1);
         }
 
-        Twicli {
+        Self {
             consumer: Token::new(
                 cfg.remove("consumer_key").unwrap(),
                 cfg.remove("consumer_secret").unwrap(),
@@ -61,7 +61,7 @@ impl Twicli {
         }
     }
 
-    fn timeline(self, count: &str) {
+    fn timeline(&self, count: &str) {
         let mut params = HashMap::new();
         params.insert("count".into(), count.into());
 
@@ -98,7 +98,7 @@ impl Twicli {
         }
     }
 
-    fn tweet(self, status: &str) {
+    fn tweet(&self, status: &str) {
         let mut params = HashMap::new();
         params.insert("status".into(), status.into());
 
