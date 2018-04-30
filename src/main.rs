@@ -17,7 +17,7 @@ struct Twicli {
     access: oauth::Token<'static>,
 }
 
-mod keys {
+mod key {
     pub const CONSUMER_KEY: &'static str = "consumer_key";
     pub const CONSUMER_SECRET: &'static str = "consumer_secret";
     pub const ACCESS_TOKEN: &'static str = "access_token";
@@ -28,6 +28,13 @@ mod api {
     pub const STATUSES_UPDATE: &'static str = "https://api.twitter.com/1.1/statuses/update.json";
     pub const HOME_TIMELINE: &'static str =
         "https://api.twitter.com/1.1/statuses/home_timeline.json";
+}
+
+mod subcommand {
+    pub const TIMELINE: &'static str = "timeline";
+    pub const TIMELINE_SHORT: &'static str = "tl";
+    pub const TWEET: &'static str = "tweet";
+    pub const TWEET_SHORT: &'static str = "tw";
 }
 
 impl Twicli {
@@ -41,9 +48,9 @@ impl Twicli {
             .unwrap();
         let mut cfg = settings.try_into::<HashMap<String, String>>().unwrap();
 
-        if !cfg.contains_key(keys::CONSUMER_KEY) || !cfg.contains_key(keys::CONSUMER_SECRET)
-            || !cfg.contains_key(keys::ACCESS_TOKEN)
-            || !cfg.contains_key(keys::ACCESS_TOKEN_SECRET)
+        if !cfg.contains_key(key::CONSUMER_KEY) || !cfg.contains_key(key::CONSUMER_SECRET)
+            || !cfg.contains_key(key::ACCESS_TOKEN)
+            || !cfg.contains_key(key::ACCESS_TOKEN_SECRET)
         {
             println!(".twclirc.yml is invalid!");
             process::exit(1);
@@ -151,42 +158,27 @@ fn main() {
     let twitter = Twicli::new();
 
     match app_m.subcommand_name() {
-        Some("timeline") => {
-            if let Some(sub_m) = app_m.subcommand_matches("timeline") {
-                match sub_m.value_of("count") {
-                    Some(c) => twitter.timeline(&c),
-                    None => twitter.timeline("20"),
-                }
-            }
-        }
-        Some("tl") => {
-            if let Some(sub_m) = app_m.subcommand_matches("tl") {
-                match sub_m.value_of("count") {
-                    Some(c) => twitter.timeline(&c),
-                    None => twitter.timeline("20"),
-                }
-            }
-        }
-        Some("tweet") => {
-            if let Some(sub_m) = app_m.subcommand_matches("tweet") {
-                match sub_m.value_of("status") {
-                    Some(s) => {
-                        twitter.tweet(&s);
-                    }
-                    None => {
-                        println!("Need status.");
+        Some(subcmd) => {
+            if subcmd == subcommand::TIMELINE || subcmd == subcommand::TIMELINE_SHORT {
+                for sc in [subcommand::TIMELINE, subcommand::TIMELINE_SHORT].iter() {
+                    if let Some(sub_m) = app_m.subcommand_matches(sc) {
+                        match sub_m.value_of("count") {
+                            Some(c) => twitter.timeline(&c),
+                            None => twitter.timeline("20"),
+                        }
                     }
                 }
-            }
-        }
-        Some("tw") => {
-            if let Some(sub_m) = app_m.subcommand_matches("tw") {
-                match sub_m.value_of("status") {
-                    Some(s) => {
-                        twitter.tweet(&s);
-                    }
-                    None => {
-                        println!("Need status.");
+            } else if subcmd == subcommand::TWEET || subcmd == subcommand::TWEET_SHORT {
+                for sc in [subcommand::TWEET, subcommand::TWEET_SHORT].iter() {
+                    if let Some(sub_m) = app_m.subcommand_matches(sc) {
+                        match sub_m.value_of("status") {
+                            Some(s) => {
+                                twitter.tweet(&s);
+                            }
+                            None => {
+                                println!("Need status.");
+                            }
+                        }
                     }
                 }
             }
