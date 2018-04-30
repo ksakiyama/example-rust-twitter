@@ -133,22 +133,22 @@ fn main() {
         .author("Kenichi Sakiyama.")
         .about("This is very simple Twitter cli client with Rust.")
         .subcommand(
-            SubCommand::with_name("timeline")
+            SubCommand::with_name(subcommand::TIMELINE)
                 .about("Show home timeline.")
                 .arg(Arg::with_name("count").index(1)),
         )
         .subcommand(
-            SubCommand::with_name("tweet")
+            SubCommand::with_name(subcommand::TWEET)
                 .about("Tweet your status.")
                 .arg(Arg::with_name("status").index(1).required(true)),
         )
         .subcommand(
-            SubCommand::with_name("tl")
+            SubCommand::with_name(subcommand::TIMELINE_SHORT)
                 .about("Show home timeline.")
                 .arg(Arg::with_name("count").index(1)),
         )
         .subcommand(
-            SubCommand::with_name("tw")
+            SubCommand::with_name(subcommand::TWEET_SHORT)
                 .about("Tweet your status.")
                 .arg(Arg::with_name("status").index(1).required(true)),
         )
