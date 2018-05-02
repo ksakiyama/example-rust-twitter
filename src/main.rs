@@ -129,7 +129,7 @@ impl Twicli {
 
 fn main() {
     let app_m = App::new("twcli-rust")
-        .version("1.0")
+        .version("0.1")
         .author("Kenichi Sakiyama.")
         .about("This is very simple Twitter cli client with Rust.")
         .subcommand(
