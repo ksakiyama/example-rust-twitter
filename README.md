@@ -2,7 +2,7 @@
 This is a example of Twitter CLI client written in Rust.
 
 This is my very practice Rust project.<br>
-I thought that programming in Rust was very hard for me because I didn't understand Rust's strong type safe system. I wrote my first code, the compiler often showed me a lot of warnings and errors😅<br>
+I thought that programming in Rust was very hard for me because I didn't understand Rust's strong type safe system. I wrote my first code, the compiler often gave me a lot of warnings and errors😅<br>
 It took longer than I thought, I developed a small Twitter client using Rust. Rust had grown on me😍
 
 I published my source code on Github.<br>
