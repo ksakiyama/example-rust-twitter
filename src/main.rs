@@ -3,19 +3,13 @@ extern crate config;
 extern crate oauth_client as oauth;
 extern crate serde_json;
 
+use clap::{App, Arg, ArgMatches, SubCommand};
 use oauth::Token;
 use serde_json::Value;
-use clap::{App, Arg, SubCommand};
 
 use std::collections::HashMap;
 use std::env;
 use std::process;
-
-#[derive(Debug)]
-struct Twicli {
-    consumer: oauth::Token<'static>,
-    access: oauth::Token<'static>,
-}
 
 mod key {
     pub const CONSUMER_KEY: &'static str = "consumer_key";
@@ -37,6 +31,12 @@ mod subcommand {
     pub const TWEET_SHORT: &'static str = "tw";
 }
 
+#[derive(Debug)]
+struct Twicli {
+    consumer: oauth::Token<'static>,
+    access: oauth::Token<'static>,
+}
+
 impl Twicli {
     fn new() -> Self {
         let mut cfg_path = env::home_dir().unwrap();
@@ -48,7 +48,8 @@ impl Twicli {
             .unwrap();
         let mut cfg = settings.try_into::<HashMap<String, String>>().unwrap();
 
-        if !cfg.contains_key(key::CONSUMER_KEY) || !cfg.contains_key(key::CONSUMER_SECRET)
+        if !cfg.contains_key(key::CONSUMER_KEY)
+            || !cfg.contains_key(key::CONSUMER_SECRET)
             || !cfg.contains_key(key::ACCESS_TOKEN)
             || !cfg.contains_key(key::ACCESS_TOKEN_SECRET)
         {
@@ -77,7 +78,9 @@ impl Twicli {
             &self.consumer,
             Some(&self.access),
             Some(&params),
-        ).unwrap();
+        )
+        .unwrap();
+
         let last_tweets_json = String::from_utf8(bytes).unwrap();
         let tweets: Vec<Value> = serde_json::from_str(&last_tweets_json).unwrap();
 
@@ -86,7 +89,7 @@ impl Twicli {
         } else {
             for t in tweets {
                 println!("{}", t["user"]["name"].to_string().trim_matches('"'));
-                println!("");
+                println!();
                 println!(
                     "{}",
                     t["text"]
@@ -95,7 +98,7 @@ impl Twicli {
                         .replace("\\t", "\t")
                         .trim_matches('"')
                 );
-                println!("");
+                println!();
                 println!("{}", t["created_at"].to_string().trim_matches('"'));
                 println!(
                     "---------------------------------------------------\
@@ -129,7 +132,7 @@ impl Twicli {
 
 fn main() {
     let app_m = App::new("twcli-rust")
-        .version("0.1")
+        .version("0.2")
         .author("Kenichi Sakiyama.")
         .about("This is very simple Twitter cli client with Rust.")
         .subcommand(
@@ -155,36 +158,41 @@ fn main() {
         .usage("twcli timeline(tl) &{count} / twcli tweet(tw) \"${status}\"")
         .get_matches();
 
+    app_m.subcommand_name().map(|subcmd| match subcmd.as_ref() {
+        subcommand::TIMELINE => {
+            exec_timeline(&app_m, subcommand::TIMELINE);
+        }
+        subcommand::TIMELINE_SHORT => {
+            exec_timeline(&app_m, subcommand::TIMELINE_SHORT);
+        }
+        subcommand::TWEET => {
+            exec_tweet(&app_m, subcommand::TWEET);
+        }
+        subcommand::TWEET_SHORT => {
+            exec_tweet(&app_m, subcommand::TWEET_SHORT);
+        }
+        _ => {}
+    });
+}
+
+fn exec_timeline(app_m: &ArgMatches, sub_command: &str) {
     let twitter = Twicli::new();
 
-    match app_m.subcommand_name() {
-        Some(subcmd) => {
-            if subcmd == subcommand::TIMELINE || subcmd == subcommand::TIMELINE_SHORT {
-                for sc in [subcommand::TIMELINE, subcommand::TIMELINE_SHORT].iter() {
-                    if let Some(sub_m) = app_m.subcommand_matches(sc) {
-                        match sub_m.value_of("count") {
-                            Some(c) => twitter.timeline(&c),
-                            None => twitter.timeline("20"),
-                        }
-                    }
-                }
-            } else if subcmd == subcommand::TWEET || subcmd == subcommand::TWEET_SHORT {
-                for sc in [subcommand::TWEET, subcommand::TWEET_SHORT].iter() {
-                    if let Some(sub_m) = app_m.subcommand_matches(sc) {
-                        match sub_m.value_of("status") {
-                            Some(s) => {
-                                twitter.tweet(&s);
-                            }
-                            None => {
-                                println!("Need status.");
-                            }
-                        }
-                    }
-                }
-            }
+    if let Some(sub_m) = app_m.subcommand_matches(sub_command) {
+        match sub_m.value_of("count") {
+            Some(c) => twitter.timeline(&c),
+            None => twitter.timeline("20"),
         }
-        _ => {
-            println!("{}", app_m.usage());
+    }
+}
+
+fn exec_tweet(app_m: &ArgMatches, sub_command: &str) {
+    let twitter = Twicli::new();
+
+    if let Some(sub_m) = app_m.subcommand_matches(sub_command) {
+        match sub_m.value_of("status") {
+            Some(s) => twitter.tweet(&s),
+            None =>println!("Need status.")
         }
     }
 }
