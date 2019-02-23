@@ -86,25 +86,26 @@ impl Twicli {
 
         if tweets.is_empty() {
             println!("No tweet(´・ω・｀)");
-        } else {
-            for t in tweets {
-                println!("{}", t["user"]["name"].to_string().trim_matches('"'));
-                println!();
-                println!(
-                    "{}",
-                    t["text"]
-                        .to_string()
-                        .replace("\\n", "\n")
-                        .replace("\\t", "\t")
-                        .trim_matches('"')
-                );
-                println!();
-                println!("{}", t["created_at"].to_string().trim_matches('"'));
-                println!(
-                    "---------------------------------------------------\
-                     ---------------------------------------------------"
-                );
-            }
+            return;
+        }
+
+        for t in tweets {
+            println!("{}", t["user"]["name"].to_string().trim_matches('"'));
+            println!();
+            println!(
+                "{}",
+                t["text"]
+                    .to_string()
+                    .replace("\\n", "\n")
+                    .replace("\\t", "\t")
+                    .trim_matches('"')
+            );
+            println!();
+            println!("{}", t["created_at"].to_string().trim_matches('"'));
+            println!(
+                "---------------------------------------------------\
+                 ---------------------------------------------------"
+            );
         }
     }
 
@@ -118,14 +119,8 @@ impl Twicli {
             Some(&self.access),
             Some(&params),
         ) {
-            Ok(_) => {
-                // let resp = String::from_utf8(bytes).unwrap();
-                // println!("{:?}", resp);
-                println!("Success.");
-            }
-            Err(err) => {
-                println!("{}", err.to_string());
-            }
+            Ok(_) => println!("Success."),
+            Err(err) => println!("{}", err.to_string()),
         }
     }
 }
@@ -192,7 +187,7 @@ fn exec_tweet(app_m: &ArgMatches, sub_command: &str) {
     if let Some(sub_m) = app_m.subcommand_matches(sub_command) {
         match sub_m.value_of("status") {
             Some(s) => twitter.tweet(&s),
-            None =>println!("Need status.")
+            None => println!("Need status."),
         }
     }
 }
