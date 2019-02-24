@@ -1,11 +1,9 @@
 # Twitter CLI Client Example in Rust
 This is a example of Twitter CLI client written in Rust.
 
-This is my very practice Rust project.<br>
-I thought that programming in Rust was very hard for me because I didn't understand Rust's strong type safe system. I wrote my first code, the compiler often gave me a lot of warnings and errors😅<br>
-It took longer than I thought, I developed a small Twitter client using Rust. Rust had grown on me😍
+This is the first project I wrote in Rust.
+I found it difficult to learn Rust and it took me a while to make this program. However, Rust is a very nice and beautiful programming language.
 
-I published my source code on Github.<br>
 If you are a Rust beginner and refer to my code, I'll be very happy.
 
 ## Usage
